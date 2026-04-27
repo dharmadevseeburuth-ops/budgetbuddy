@@ -43,14 +43,19 @@ class TransactionProvider with ChangeNotifier {
         .fold(0, (sum, tx) => sum + tx.amount);
   }
 
-  bool isOverBudget(String category) {
-    double spent = _transactions
+  double getCategorySpent(String category) {
+    return _transactions
         .where((tx) => tx.category == category && tx.type == "expense")
         .fold(0, (sum, tx) => sum + tx.amount);
+  }
 
-    double budgetLimit = budgetLimits[category] ?? 0;
+  bool isOverBudget(String category) {
+    double spent = getCategorySpent(category);
+    double limit = budgetLimits[category] ?? 0;
 
-    return budgetLimit > 0 && spent > budgetLimit;
+    if (limit == 0) return false;
+
+    return spent > limit;
   }
 
   double get totalSavings {
