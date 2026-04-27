@@ -164,13 +164,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
-        onTap: (index) {
+        onTap: (index) async {
           if (index == 3) {
             showQuickActions();
             return;
           }
 
           setState(() => _selectedIndex = index);
+
+          if (index == 0) {
+            await loadData();
+          }
         },
         type: BottomNavigationBarType.fixed,
         items: const [
