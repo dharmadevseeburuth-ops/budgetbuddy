@@ -1,4 +1,5 @@
 import 'package:budgetbuddy/models/budget_model.dart';
+import 'package:budgetbuddy/models/savings_goal_model.dart';
 import 'package:budgetbuddy/models/user_model.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -48,6 +49,16 @@ class DBHelper {
           userId INTEGER
         )
         ''');
+
+        await db.execute('''
+        CREATE TABLE savings_goals(
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          title TEXT,
+          targetAmount REAL,
+          savedAmount REAL,
+          userId INTEGER
+        )
+        ''');
       },
     );
   }
@@ -75,7 +86,7 @@ class DBHelper {
       );
     }
 
-  return null;
+    return null;
   }
 
   Future<bool> userExists(String email) async {
@@ -110,6 +121,33 @@ class DBHelper {
     );
   }
 
+  Future<int> insertGoal(SavingsGoal goal) async {
+    final dbClient = await db;
+    return await dbClient.insert('savings_goals', goal.toMap());
+  }
+
+  Future<List<SavingsGoal>> fetchGoals(int userId) async {
+    final dbClient = await db;
+
+    final maps = await dbClient.query(
+      'savings_goals',
+      where: 'userId = ?',
+      whereArgs: [userId],
+    );
+
+    return maps
+        .map(
+          (e) => SavingsGoal(
+            id: e['id'] as int,
+            title: e['title'] as String,
+            targetAmount: (e['targetAmount'] as num).toDouble(),
+            savedAmount: (e['savedAmount'] as num).toDouble(),
+            userId: e['userId'] as int,
+          ),
+        )
+        .toList();
+  }
+
   Future<int> insert(TransactionModel tx) async {
     final dbClient = await db;
     return await dbClient.insert('transactions', tx.toMap());
@@ -124,14 +162,18 @@ class DBHelper {
       whereArgs: [userId],
     );
 
-    return maps.map((e) => TransactionModel(
-      id: e['id'] as int,
-      title: e['title'] as String,
-      amount: (e['amount'] as num).toDouble(),
-      type: e['type'] as String,
-      category: e['category'] as String,
-      date: e['date'] as String,
-      userId: e['userId'] as int,
-    )).toList();
+    return maps
+        .map(
+          (e) => TransactionModel(
+            id: e['id'] as int,
+            title: e['title'] as String,
+            amount: (e['amount'] as num).toDouble(),
+            type: e['type'] as String,
+            category: e['category'] as String,
+            date: e['date'] as String,
+            userId: e['userId'] as int,
+          ),
+        )
+        .toList();
   }
 }

@@ -52,4 +52,9 @@ class TransactionProvider with ChangeNotifier {
 
     return budgetLimit > 0 && spent > budgetLimit;
   }
+
+  double get totalSavings {
+    double savings = totalIncome - totalExpense;
+    return savings < 0 ? 0 : savings;
+  }
 }

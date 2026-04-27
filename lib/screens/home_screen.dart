@@ -1,4 +1,6 @@
 import 'package:budgetbuddy/providers/auth_provider.dart';
+import 'package:budgetbuddy/providers/savings_provider.dart';
+import 'package:budgetbuddy/screens/add_goal_screen.dart';
 import 'package:budgetbuddy/screens/login_screen.dart';
 import 'package:budgetbuddy/screens/set_budget_screen.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +16,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-
   @override
   void initState() {
     super.initState();
@@ -24,11 +25,20 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> loadData() async {
     final auth = Provider.of<AuthProvider>(context, listen: false);
 
-    await Provider.of<TransactionProvider>(context, listen: false)
-        .loadTransactions(auth.user!.id!);
+    await Provider.of<TransactionProvider>(
+      context,
+      listen: false,
+    ).loadTransactions(auth.user!.id!);
 
-    await Provider.of<TransactionProvider>(context, listen: false)
-        .loadBudgets(auth.user!.id!); 
+    await Provider.of<TransactionProvider>(
+      context,
+      listen: false,
+    ).loadBudgets(auth.user!.id!);
+
+    await Provider.of<SavingsProvider>(
+      context,
+      listen: false,
+    ).loadGoals(auth.user!.id!);
   }
 
   @override
@@ -55,7 +65,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     TextButton(
                       child: Text("Logout"),
                       onPressed: () {
-                        Provider.of<AuthProvider>(context, listen: false).logout();
+                        Provider.of<AuthProvider>(
+                          context,
+                          listen: false,
+                        ).logout();
 
                         Navigator.pushAndRemoveUntil(
                           context,
@@ -68,7 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               );
             },
-          )
+          ),
         ],
       ),
 
@@ -84,8 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Text(
                     "Financial Overview",
-                    style: TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 10),
 
@@ -105,14 +117,65 @@ class _HomeScreenState extends State<HomeScreen> {
 
           SizedBox(height: 10),
 
+          Consumer<SavingsProvider>(
+            builder: (context, savings, _) {
+              final transactionProvider = Provider.of<TransactionProvider>(
+                context,
+              );
+
+              if (savings.goals.isEmpty) {
+                return Padding(
+                  padding: EdgeInsets.all(10),
+                  child: Text("No savings goals yet"),
+                );
+              }
+
+              return Column(
+                children: savings.goals.map((goal) {
+                  double progress = 0;
+
+                  if (goal.targetAmount > 0) {
+                    progress =
+                        (transactionProvider.totalSavings / goal.targetAmount) *
+                        100;
+                  }
+
+                  if (progress > 100) progress = 100;
+
+                  return Card(
+                    child: ListTile(
+                      title: Text(goal.title),
+
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          LinearProgressIndicator(value: progress / 100),
+                          Text("${progress.toStringAsFixed(1)}% completed"),
+                        ],
+                      ),
+
+                      trailing: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "\$${transactionProvider.totalSavings.toStringAsFixed(0)}",
+                          ),
+                          Text(
+                            "/ \$${goal.targetAmount.toStringAsFixed(0)}",
+                            style: TextStyle(fontSize: 12),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList(),
+              );
+            },
+          ),
+
           Expanded(
             child: provider.transactions.isEmpty
-                ? Center(
-                    child: Text(
-                      "No transactions yet",
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  )
+                ? Center(child: Text("No transactions yet"))
                 : ListView.builder(
                     itemCount: provider.transactions.length,
                     itemBuilder: (_, i) {
@@ -122,7 +185,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
                       return Card(
                         margin: EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 5),
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
                         child: ListTile(
                           leading: Text(
                             AppCategories.getIcon(tx.category),
@@ -160,22 +225,20 @@ class _HomeScreenState extends State<HomeScreen> {
                       );
                     },
                   ),
-          )
+          ),
         ],
       ),
 
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-
           FloatingActionButton(
             heroTag: "add",
             child: Icon(Icons.add),
             onPressed: () async {
               await Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (_) => AddTransactionScreen()),
+                MaterialPageRoute(builder: (_) => AddTransactionScreen()),
               );
 
               await loadData();
@@ -192,6 +255,21 @@ class _HomeScreenState extends State<HomeScreen> {
                 context,
                 MaterialPageRoute(builder: (_) => SetBudgetScreen()),
               );
+            },
+          ),
+
+          SizedBox(height: 10),
+
+          FloatingActionButton(
+            heroTag: "goal",
+            child: Icon(Icons.flag),
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => AddGoalScreen()),
+              );
+
+              await loadData(); // 🔥 refresh goals after adding
             },
           ),
 
