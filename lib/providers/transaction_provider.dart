@@ -57,4 +57,41 @@ class TransactionProvider with ChangeNotifier {
     double savings = totalIncome - totalExpense;
     return savings < 0 ? 0 : savings;
   }
+
+  String? getSpendingAlert(String category) {
+    double spent = _transactions
+        .where((tx) => tx.category == category && tx.type == "expense")
+        .fold(0, (sum, tx) => sum + tx.amount);
+
+    double limit = budgetLimits[category] ?? 0;
+
+    if (limit == 0) return null;
+
+    if (spent >= limit) {
+      return "🚨 You exceeded your $category budget!";
+    }
+
+    if (spent >= limit * 0.8) {
+      return "⚠️ You're close to your $category budget";
+    }
+
+    return null;
+  }
+
+  String getRecommendation(String category) {
+    switch (category) {
+      case "Food":
+        return "Try cooking at home more often 🍳";
+      case "Transport":
+        return "Consider public transport or carpool 🚗";
+      case "Entertainment":
+        return "Look for free or low-cost activities 🎮";
+      case "Shopping":
+        return "Avoid impulse purchases 🛍️";
+      case "Bills":
+        return "Reduce electricity usage 💡";
+      default:
+        return "Track your spending carefully";
+    }
+  }
 }

@@ -19,7 +19,11 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    loadData();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await loadData();
+      checkOverspendingAlerts();
+    });
   }
 
   Future<void> loadData() async {
@@ -39,6 +43,21 @@ class _HomeScreenState extends State<HomeScreen> {
       context,
       listen: false,
     ).loadGoals(auth.user!.id!);
+  }
+
+  void checkOverspendingAlerts() {
+    final provider = Provider.of<TransactionProvider>(context, listen: false);
+
+    for (var category in provider.budgetLimits.keys) {
+      final alert = provider.getSpendingAlert(category);
+
+      if (alert != null && alert.contains("exceeded")) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(alert), backgroundColor: Colors.red),
+        );
+        break; // only show once
+      }
+    }
   }
 
   @override
@@ -200,15 +219,42 @@ class _HomeScreenState extends State<HomeScreen> {
                             children: [
                               Text(tx.category),
 
-                              // BUDGET WARNING
-                              if (overBudget)
-                                Text(
-                                  "Over Budget!",
-                                  style: TextStyle(
-                                    color: Colors.red,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+                              Builder(
+                                builder: (context) {
+                                  final alert = provider.getSpendingAlert(
+                                    tx.category,
+                                  );
+
+                                  if (alert != null) {
+                                    return Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          alert,
+                                          style: TextStyle(
+                                            color: Colors.orange,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+
+                                        Text(
+                                          provider.getRecommendation(
+                                            tx.category,
+                                          ),
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            color: Colors.blueGrey,
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  }
+
+                                  return SizedBox();
+                                },
+                              ),
                             ],
                           ),
 
@@ -269,7 +315,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 MaterialPageRoute(builder: (_) => AddGoalScreen()),
               );
 
-              await loadData(); // 🔥 refresh goals after adding
+              await loadData();
             },
           ),
 
