@@ -18,43 +18,55 @@ class GoalsScreen extends StatelessWidget {
         }
 
         return Column(
-          children: savings.goals.map((goal) {
-            double progress = 0;
-
-            if (goal.targetAmount > 0) {
-              progress =
-                  (transactionProvider.totalSavings / goal.targetAmount) * 100;
-            }
-
-            if (progress > 100) progress = 100;
-
-            return Card(
-              child: ListTile(
-                title: Text(goal.title),
-
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    LinearProgressIndicator(value: progress / 100),
-                    Text("${progress.toStringAsFixed(1)}% completed"),
-                  ],
-                ),
-
-                trailing: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "\$${transactionProvider.totalSavings.toStringAsFixed(0)}",
-                    ),
-                    Text(
-                      "/ \$${goal.targetAmount.toStringAsFixed(0)}",
-                      style: TextStyle(fontSize: 12),
-                    ),
-                  ],
-                ),
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Padding(
+              padding: EdgeInsets.all(16),
+              child: Text(
+                "Savings Goals",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
-            );
-          }).toList(),
+            ),
+
+            ...savings.goals.map((goal) {
+              double progress = 0;
+
+              if (goal.targetAmount > 0) {
+                progress =
+                    (transactionProvider.totalSavings / goal.targetAmount) *
+                    100;
+              }
+
+              if (progress > 100) progress = 100;
+
+              return Card(
+                child: ListTile(
+                  title: Text(goal.title),
+
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      LinearProgressIndicator(value: progress / 100),
+                      Text("${progress.toStringAsFixed(1)}% completed"),
+                    ],
+                  ),
+
+                  trailing: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "\$${transactionProvider.totalSavings.toStringAsFixed(0)}",
+                      ),
+                      Text(
+                        "/ \$${goal.targetAmount.toStringAsFixed(0)}",
+                        style: TextStyle(fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }).toList(),
+          ],
         );
       },
     );

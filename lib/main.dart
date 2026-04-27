@@ -5,6 +5,7 @@ import 'package:budgetbuddy/providers/savings_provider.dart';
 import 'package:budgetbuddy/screens/home_screen.dart';
 import 'package:budgetbuddy/screens/start_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'providers/transaction_provider.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -30,7 +31,12 @@ class BudgetBuddy extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'BudgetBuddy',
-        theme: ThemeData(primarySwatch: Colors.blue),
+        theme: ThemeData(
+          fontFamily: GoogleFonts.poppins().fontFamily,
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+          useMaterial3: true,
+        ),
+
         home: Consumer<AuthProvider>(
           builder: (context, auth, _) {
             if (auth.user == null) {

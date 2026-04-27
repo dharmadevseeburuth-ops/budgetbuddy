@@ -11,61 +11,66 @@ class StatsScreen extends StatelessWidget {
 
     double balance = provider.totalIncome - provider.totalExpense;
 
-    return Scaffold(
-      appBar: AppBar(title: Text("Financial Dashboard"), centerTitle: true),
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Text(
+            "Financial Dashboard",
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
 
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // SUMMARY CARDS
-            Padding(
-              padding: EdgeInsets.all(12),
-              child: Row(
-                children: [
-                  _buildCard("Income", provider.totalIncome, Colors.green),
-                  _buildCard("Expense", provider.totalExpense, Colors.red),
-                  _buildCard("Balance", balance, Colors.blue),
-                ],
+          SizedBox(height: 10),
+
+          // SUMMARY CARDS
+          Padding(
+            padding: EdgeInsets.all(12),
+            child: Row(
+              children: [
+                _buildCard("Income", provider.totalIncome, Colors.green),
+                _buildCard("Expense", provider.totalExpense, Colors.red),
+                _buildCard("Balance", balance, Colors.blue),
+              ],
+            ),
+          ),
+
+          SizedBox(height: 10),
+
+          FinancialInsights(provider: provider),
+
+          SizedBox(height: 10),
+
+          // PIE CHART - SPENDING BREAKDOWN
+          Text(
+            "Spending Breakdown",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+          ),
+
+          SizedBox(height: 10),
+
+          SizedBox(
+            height: 250,
+            child: PieChart(
+              PieChartData(
+                sections: _buildPieSections(provider),
+                centerSpaceRadius: 50,
+                sectionsSpace: 3,
+                borderData: FlBorderData(show: false),
               ),
             ),
+          ),
 
-            SizedBox(height: 10),
+          SizedBox(height: 20),
 
-            FinancialInsights(provider: provider),
+          // CATEGORY LIST (DETAILED VIEW)
+          Text(
+            "Category Overview",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+          ),
 
-            SizedBox(height: 10),
+          SizedBox(height: 10),
 
-            // PIE CHART - SPENDING BREAKDOWN
-            Text(
-              "Spending Breakdown",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-
-            SizedBox(height: 10),
-
-            SizedBox(
-              height: 250,
-              child: PieChart(
-                PieChartData(
-                  sections: _buildPieSections(provider),
-                  centerSpaceRadius: 40,
-                ),
-              ),
-            ),
-
-            SizedBox(height: 20),
-
-            // CATEGORY LIST (DETAILED VIEW)
-            Text(
-              "Category Overview",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-
-            SizedBox(height: 10),
-
-            ..._buildCategoryList(provider),
-          ],
-        ),
+          ..._buildCategoryList(provider),
+        ],
       ),
     );
   }
@@ -100,18 +105,32 @@ class StatsScreen extends StatelessWidget {
 
   // PIE CHART DATA
   List<PieChartSectionData> _buildPieSections(provider) {
+    double income = provider.totalIncome;
+    double expense = provider.totalExpense;
+    double total = income + expense;
+
     return [
       PieChartSectionData(
-        value: provider.totalExpense,
-        title: "Expense",
+        value: expense,
+        title: "${((expense / total) * 100).toStringAsFixed(0)}%",
         color: Colors.red,
-        radius: 60,
+        radius: 80,
+        titleStyle: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
       ),
       PieChartSectionData(
-        value: provider.totalIncome,
-        title: "Income",
+        value: income,
+        title: "${((income / total) * 100).toStringAsFixed(0)}%",
         color: Colors.green,
-        radius: 60,
+        radius: 70,
+        titleStyle: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
       ),
     ];
   }

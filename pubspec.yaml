@@ -1,6 +1,6 @@
 name: budgetbuddy
 description: "A new Flutter project."
-publish_to: 'none'
+publish_to: "none"
 version: 0.1.0+1
 
 environment:
@@ -15,6 +15,7 @@ dependencies:
   fl_chart: ^0.66.0
   sqflite_common_ffi: ^2.4.0+3
   crypto: ^3.0.3
+  google_fonts: ^6.2.1
 
 dev_dependencies:
   flutter_test:

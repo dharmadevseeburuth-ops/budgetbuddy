@@ -126,7 +126,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("BudgetBuddy"),
+        title: Text(
+          "BudgetBuddy",
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
+        ),
+        automaticallyImplyLeading: false,
         actions: [
           IconButton(
             icon: Icon(Icons.logout),
@@ -209,7 +213,7 @@ class HomeContent extends StatelessWidget {
               children: [
                 Text(
                   "Financial Overview",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                 ),
                 SizedBox(height: 10),
 
@@ -231,50 +235,69 @@ class HomeContent extends StatelessWidget {
 
         Text(
           "Budget Overview",
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
         ),
 
         Card(
           margin: EdgeInsets.all(10),
-          child: Column(
-            children: provider.budgetLimits.entries.map((entry) {
-              String category = entry.key;
-              double limit = entry.value;
-
-              double spent = provider.getCategorySpent(category);
-
-              double percent = limit > 0 ? (spent / limit) : 0;
-              if (percent > 1) percent = 1;
-
-              return ListTile(
-                leading: Text(AppCategories.getIcon(category)),
-                title: Text(category),
-                subtitle: LinearProgressIndicator(value: percent),
-                trailing: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      "\$${spent.toStringAsFixed(0)} / \$${limit.toStringAsFixed(0)}",
+          child: provider.budgetLimits.isEmpty
+              ? Padding(
+                  padding: EdgeInsets.all(15),
+                  child: Center(
+                    child: Text(
+                      "No budgets set yet",
+                      style: TextStyle(fontSize: 14, color: Colors.grey),
                     ),
-                    if (provider.isOverBudget(category))
-                      Text(
-                        "Over Budget!",
-                        style: TextStyle(color: Colors.red, fontSize: 12),
+                  ),
+                )
+              : Column(
+                  children: provider.budgetLimits.entries.map((entry) {
+                    String category = entry.key;
+                    double limit = entry.value;
+
+                    double spent = provider.getCategorySpent(category);
+
+                    double percent = limit > 0 ? (spent / limit) : 0;
+                    if (percent > 1) percent = 1;
+
+                    return ListTile(
+                      leading: Text(AppCategories.getIcon(category)),
+                      title: Text(category),
+                      subtitle: LinearProgressIndicator(value: percent),
+                      trailing: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            "\$${spent.toStringAsFixed(0)} / \$${limit.toStringAsFixed(0)}",
+                          ),
+                          if (provider.isOverBudget(category))
+                            Text(
+                              "Over Budget!",
+                              style: TextStyle(color: Colors.red, fontSize: 12),
+                            ),
+                        ],
                       ),
-                  ],
+                    );
+                  }).toList(),
                 ),
-              );
-            }).toList(),
-          ),
         ),
 
         Text(
           "Transactions",
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
         ),
+
         Expanded(
           child: transactions.isEmpty
-              ? Center(child: Text("No transactions yet"))
+              ? Padding(
+                  padding: EdgeInsets.all(15),
+                  child: Center(
+                    child: Text(
+                      "No transactions yet",
+                      style: TextStyle(fontSize: 14, color: Colors.grey),
+                    ),
+                  ),
+                )
               : ListView.builder(
                   itemCount: transactions.length,
                   itemBuilder: (_, i) {
