@@ -2,10 +2,11 @@ import 'dart:io';
 
 import 'package:budgetbuddy/providers/auth_provider.dart';
 import 'package:budgetbuddy/providers/savings_provider.dart';
+import 'package:budgetbuddy/screens/home_screen.dart';
+import 'package:budgetbuddy/screens/start_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/transaction_provider.dart';
-import 'screens/login_screen.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() {
@@ -30,7 +31,14 @@ class BudgetBuddy extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'BudgetBuddy',
         theme: ThemeData(primarySwatch: Colors.blue),
-        home: LoginScreen(),
+        home: Consumer<AuthProvider>(
+          builder: (context, auth, _) {
+            if (auth.user == null) {
+              return StartScreen();
+            }
+            return HomeScreen();
+          },
+        ),
       ),
     );
   }

@@ -9,6 +9,26 @@ class TransactionProvider with ChangeNotifier {
 
   List<TransactionModel> get transactions => _transactions;
 
+  List<TransactionModel> getWeeklyTransactions() {
+    DateTime now = DateTime.now();
+    DateTime weekAgo = now.subtract(Duration(days: 7));
+
+    return _transactions.where((tx) {
+      DateTime date = DateTime.parse(tx.date);
+      return date.isAfter(weekAgo);
+    }).toList();
+  }
+
+  List<TransactionModel> getMonthlyTransactions() {
+    DateTime now = DateTime.now();
+    DateTime monthAgo = DateTime(now.year, now.month - 1, now.day);
+
+    return _transactions.where((tx) {
+      DateTime date = DateTime.parse(tx.date);
+      return date.isAfter(monthAgo);
+    }).toList();
+  }
+
   Future<void> loadTransactions(int userId) async {
     _transactions = await dbHelper.fetch(userId);
     notifyListeners();
@@ -98,5 +118,29 @@ class TransactionProvider with ChangeNotifier {
       default:
         return "Track your spending carefully";
     }
+  }
+
+  double getWeeklyIncome() {
+    return getWeeklyTransactions()
+        .where((tx) => tx.type == "income")
+        .fold(0, (sum, tx) => sum + tx.amount);
+  }
+
+  double getWeeklyExpense() {
+    return getWeeklyTransactions()
+        .where((tx) => tx.type == "expense")
+        .fold(0, (sum, tx) => sum + tx.amount);
+  }
+
+  double getMonthlyIncome() {
+    return getMonthlyTransactions()
+        .where((tx) => tx.type == "income")
+        .fold(0, (sum, tx) => sum + tx.amount);
+  }
+
+  double getMonthlyExpense() {
+    return getMonthlyTransactions()
+        .where((tx) => tx.type == "expense")
+        .fold(0, (sum, tx) => sum + tx.amount);
   }
 }

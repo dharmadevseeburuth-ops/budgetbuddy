@@ -195,6 +195,7 @@ class HomeContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var provider = Provider.of<TransactionProvider>(context);
+    final transactions = provider.transactions.reversed.toList();
 
     return Column(
       children: [
@@ -227,6 +228,11 @@ class HomeContent extends StatelessWidget {
         ),
 
         SizedBox(height: 10),
+
+        Text(
+          "Budget Overview",
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
 
         Card(
           margin: EdgeInsets.all(10),
@@ -262,13 +268,17 @@ class HomeContent extends StatelessWidget {
           ),
         ),
 
+        Text(
+          "Transactions",
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
         Expanded(
-          child: provider.transactions.isEmpty
+          child: transactions.isEmpty
               ? Center(child: Text("No transactions yet"))
               : ListView.builder(
-                  itemCount: provider.transactions.length,
+                  itemCount: transactions.length,
                   itemBuilder: (_, i) {
-                    var tx = provider.transactions[i];
+                    var tx = transactions[i];
 
                     return Card(
                       margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),

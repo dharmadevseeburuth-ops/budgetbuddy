@@ -12,15 +12,11 @@ class StatsScreen extends StatelessWidget {
     double balance = provider.totalIncome - provider.totalExpense;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Financial Dashboard"),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: Text("Financial Dashboard"), centerTitle: true),
 
       body: SingleChildScrollView(
         child: Column(
           children: [
-
             // SUMMARY CARDS
             Padding(
               padding: EdgeInsets.all(12),
@@ -32,6 +28,10 @@ class StatsScreen extends StatelessWidget {
                 ],
               ),
             ),
+
+            SizedBox(height: 10),
+
+            FinancialInsights(provider: provider),
 
             SizedBox(height: 10),
 
@@ -79,8 +79,7 @@ class StatsScreen extends StatelessWidget {
           padding: EdgeInsets.all(12),
           child: Column(
             children: [
-              Text(title,
-                  style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
 
               SizedBox(height: 5),
 
@@ -123,8 +122,7 @@ class StatsScreen extends StatelessWidget {
 
     for (var tx in provider.transactions) {
       if (tx.type == "expense") {
-        categoryMap[tx.category] =
-            (categoryMap[tx.category] ?? 0) + tx.amount;
+        categoryMap[tx.category] = (categoryMap[tx.category] ?? 0) + tx.amount;
       }
     }
 
@@ -139,13 +137,55 @@ class StatsScreen extends StatelessWidget {
           title: Text(e.key),
           trailing: Text(
             "\$${e.value.toStringAsFixed(2)}",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.red,
-            ),
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
           ),
         ),
       );
     }).toList();
+  }
+}
+
+class FinancialInsights extends StatelessWidget {
+  final TransactionProvider provider;
+
+  FinancialInsights({required this.provider});
+
+  @override
+  Widget build(BuildContext context) {
+    double weeklyIncome = provider.getWeeklyIncome();
+    double weeklyExpense = provider.getWeeklyExpense();
+
+    double monthlyIncome = provider.getMonthlyIncome();
+    double monthlyExpense = provider.getMonthlyExpense();
+
+    return Column(
+      children: [
+        // WEEKLY CARD
+        Card(
+          child: ListTile(
+            title: Text("Weekly Report"),
+            subtitle: Text(
+              "Income: \$${weeklyIncome.toStringAsFixed(0)}\n"
+              "Expense: \$${weeklyExpense.toStringAsFixed(0)}\n"
+              "Balance: \$${(weeklyIncome - weeklyExpense).toStringAsFixed(0)}",
+            ),
+          ),
+        ),
+
+        SizedBox(height: 10),
+
+        // MONTHLY CARD
+        Card(
+          child: ListTile(
+            title: Text("Monthly Report"),
+            subtitle: Text(
+              "Income: \$${monthlyIncome.toStringAsFixed(0)}\n"
+              "Expense: \$${monthlyExpense.toStringAsFixed(0)}\n"
+              "Balance: \$${(monthlyIncome - monthlyExpense).toStringAsFixed(0)}",
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }
