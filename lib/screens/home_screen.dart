@@ -63,14 +63,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _onTabTapped(int index) async {
-    setState(() => _selectedIndex = index);
-
-    if (index == 0) {
-      await loadData();
-    }
-  }
-
   void showQuickActions() {
     showModalBottomSheet(
       context: context,
