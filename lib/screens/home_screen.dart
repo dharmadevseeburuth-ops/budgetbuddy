@@ -7,7 +7,7 @@ import 'package:budgetbuddy/screens/set_budget_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/transaction_provider.dart';
-import 'add_transaction.dart';
+import 'add_transaction_screen.dart';
 import 'stats_screen.dart';
 import '../data/categories.dart';
 
@@ -85,12 +85,13 @@ class _HomeScreenState extends State<HomeScreen> {
             ListTile(
               leading: Icon(Icons.account_balance_wallet),
               title: Text("Set Budget"),
-              onTap: () {
+              onTap: () async {
                 Navigator.pop(context);
-                Navigator.push(
+                await Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => SetBudgetScreen()),
                 );
+                await loadData();
               },
             ),
 

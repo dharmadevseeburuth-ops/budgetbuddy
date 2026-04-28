@@ -15,7 +15,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   final amountController = TextEditingController();
 
   String type = "expense";
-  String selectedCategory = "Food";
+  String selectedCategory = AppCategories.expenseCategories.first.name;
 
   @override
   Widget build(BuildContext context) {
@@ -62,13 +62,19 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               SizedBox(height: 25),
 
               DropdownButtonFormField<String>(
-                value: selectedCategory,
-                items: AppCategories.all.map((c) {
-                  return DropdownMenuItem(
-                    value: c.name,
-                    child: Text("${c.icon} ${c.name}"),
-                  );
-                }).toList(),
+                value: AppCategories.getByType(type)
+                        .any((c) => c.name == selectedCategory)
+                    ? selectedCategory
+                    : AppCategories.getByType(type).first.name,
+
+                items: AppCategories.getByType(type)
+                    .toSet()
+                    .map((c) => DropdownMenuItem(
+                          value: c.name,
+                          child: Text("${c.icon} ${c.name}"),
+                        ))
+                    .toList(),
+
                 onChanged: (val) {
                   setState(() {
                     selectedCategory = val!;

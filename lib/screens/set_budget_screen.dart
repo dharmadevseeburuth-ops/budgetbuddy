@@ -11,13 +11,19 @@ class SetBudgetScreen extends StatefulWidget {
 }
 
 class _SetBudgetScreenState extends State<SetBudgetScreen> {
-  String category = "Food";
+  String category = AppCategories.expenseCategories.first.name;
   final limitController = TextEditingController();
   DBHelper dbHelper = DBHelper();
 
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<AuthProvider>(context).user!;
+    final user = Provider.of<AuthProvider>(context).user;
+
+    if (user == null) {
+      return Scaffold(
+        body: Center(child: Text("User not logged in")),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(title: Text("Set Budget")),
@@ -26,14 +32,21 @@ class _SetBudgetScreenState extends State<SetBudgetScreen> {
         child: Column(
           children: [
             DropdownButton<String>(
-              value: category,
-              items: AppCategories.all.map((c) {
+              value: AppCategories.expenseCategories
+                      .any((c) => c.name == category)
+                  ? category
+                  : AppCategories.expenseCategories.first.name,
+
+              items: AppCategories.expenseCategories.map((c) {
                 return DropdownMenuItem(
                   value: c.name,
                   child: Text("${c.icon} ${c.name}"),
                 );
               }).toList(),
-              onChanged: (val) => setState(() => category = val!),
+
+              onChanged: (val) {
+                setState(() => category = val!);
+              },
             ),
 
             TextField(
